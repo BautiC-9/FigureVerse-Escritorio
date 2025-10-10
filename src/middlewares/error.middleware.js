@@ -1,4 +1,4 @@
-// NOTA: Esto caso de errores de ejemplo después estar todo completo la API
+// NOTA: Esto caso de errores de ejemplo después estar todo completo la API faltaria casos de errores del agregado de peliculas
 // nos enfocaremos a resolver bien los puntos centrales
 
 // Cosos de Errores comunes y manejo centralizado
