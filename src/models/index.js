@@ -121,6 +121,10 @@ Calificacion.belongsTo(Pelicula, {
   as: "pelicula",
 });
 
+syncModels = async () => {
+  await sequelize.sync({ alter: true });
+}
+
 // Exportamos los modelos y la instancia de Sequelize
 module.exports = {
   sequelize,
@@ -130,4 +134,5 @@ module.exports = {
   PeliculaGenero,
   Favorito,
   Calificacion,
+  syncModels
 };
