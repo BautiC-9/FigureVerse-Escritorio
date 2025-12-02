@@ -9,6 +9,7 @@ import { resenasService } from '../../services/resenasService'
 import { Star, ChevronsLeft, ChevronLeft, ChevronRight, CheckCircle, EyeOff, Ban, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { productosService } from '../../services/productosService'
+import { analisisIAService } from '../../services/analisisIAService'
 
 export default function ReseñasPage() {
   const [form, setForm] = useState({ id_producto:'', calificacion:'5', comentario:'' })
@@ -24,6 +25,12 @@ export default function ReseñasPage() {
   const [editOpen, setEditOpen] = useState(false)
   const [editItem, setEditItem] = useState(null)
   const [editForm, setEditForm] = useState({ calificacion:'5', comentario:'' })
+  const [analisisResumen, setAnalisisResumen] = useState(null)
+  const [analisisLoading, setAnalisisLoading] = useState(false)
+  const [analisisError, setAnalisisError] = useState('')
+  const [analisisProductId, setAnalisisProductId] = useState('')
+  const [malasCalificaciones, setMalasCalificaciones] = useState(null)
+  const [malasLoading, setMalasLoading] = useState(false)
   
 
   const canTransition = (from, to) => {
@@ -196,6 +203,30 @@ export default function ReseñasPage() {
             <button className="btn" onClick={aplicar} style={{background:'#1f2937', color:'#fff'}}>Aplicar</button>
           </div>
         </div>
+
+      <div className="card" style={{marginTop:12}}>
+        <div className="productos-filters" style={{display:'flex', gap:12, alignItems:'center', flexWrap:'wrap'}}>
+          <h3>Análisis IA de Reseñas</h3>
+          <input inputMode="numeric" placeholder="ID producto" value={analisisProductId} onChange={(e)=> setAnalisisProductId(e.target.value.replace(/[^0-9]/g,''))} />
+          <button className="btn" onClick={async ()=>{ setAnalisisError(''); setAnalisisLoading(true); try { const data = await analisisIAService.resumenProducto(Number(analisisProductId)); setAnalisisResumen(data); toast.success('Resumen cargado'); } catch(e){ setAnalisisError(e.message||'Error'); toast.error('Error al cargar resumen'); } finally { setAnalisisLoading(false) } }} style={{background:'#1f2937', color:'#fff'}}>Ver resumen</button>
+          <button className="btn" onClick={async ()=>{ setAnalisisError(''); setMalasLoading(true); try { const data = await analisisIAService.analizarMalasCalificaciones(); setMalasCalificaciones(data); toast.success('Análisis listo'); } catch(e){ setAnalisisError(e.message||'Error'); toast.error('Error en análisis'); } finally { setMalasLoading(false) } }} style={{background:'#ef4444', color:'#fff'}}>Analizar malas calificaciones</button>
+        </div>
+        {analisisError && <div className="error-box" style={{marginTop:8}}>{analisisError}</div>}
+        <div style={{display:'flex', gap:16, flexWrap:'wrap', marginTop:12}}>
+          <div style={{flex:1, minWidth:300}}>
+            <h4>Resumen del producto</h4>
+            {analisisLoading ? <div>Cargando resumen...</div> : (
+              <pre style={{background:'#0b1220', color:'#e5e7eb', padding:12, borderRadius:6, overflow:'auto', maxHeight:240}}>{analisisResumen ? JSON.stringify(analisisResumen, null, 2) : 'Sin datos'}</pre>
+            )}
+          </div>
+          <div style={{flex:1, minWidth:300}}>
+            <h4>Productos con malas calificaciones</h4>
+            {malasLoading ? <div>Analizando...</div> : (
+              <pre style={{background:'#0b1220', color:'#e5e7eb', padding:12, borderRadius:6, overflow:'auto', maxHeight:240}}>{malasCalificaciones ? JSON.stringify(malasCalificaciones, null, 2) : 'Sin datos'}</pre>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="table" style={{marginTop:12}}>
         <h3>Listado</h3>
